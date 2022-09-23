@@ -16,6 +16,7 @@ func main() {
 		log.Fatal(err)
 	}
 	for {
+		fmt.Println("listening")
 		conn, err := l.Accept()
 		if err != nil {
 			log.Fatal(err)
