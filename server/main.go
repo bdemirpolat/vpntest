@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/songgao/packets/ethernet"
 	"github.com/songgao/water"
 	"log"
 	"net"
@@ -46,13 +47,15 @@ func main() {
 		fmt.Println(out)
 
 		go func(tcpConn net.Conn) {
+			var message ethernet.Frame
 			for {
-				message := make([]byte, 2000)
-				_, err := conn.Read(message)
+				message.Resize(2000)
+				n, err := conn.Read(message)
 				if err != nil {
 					log.Println("conn read error:", err)
 				}
-				fmt.Println("incoming message:", string(message))
+				message = message[:n]
+				cmd.WritePacket(message)
 				if ifce != nil {
 					_, err = ifce.Write(message)
 					if err != nil {
@@ -61,14 +64,16 @@ func main() {
 				}
 			}
 		}(conn)
-
-		packet := make([]byte, 2000)
+		var packet ethernet.Frame
 		for {
+			packet.Resize(2000)
 			n, err := ifce.Read(packet)
 			if err != nil {
 				log.Println("ifce read error:", err)
 			}
-			log.Printf("Packet Received: % x\n", packet[:n])
+			packet = packet[:n]
+			cmd.WritePacket(packet)
+			log.Printf("Packet Received: % x\n", packet)
 			_, err = conn.Write(packet)
 			if err != nil {
 				log.Println("conn write error:", err)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/songgao/packets/ethernet"
 	"github.com/songgao/water"
 	"log"
 	"net"
@@ -40,28 +41,32 @@ func main() {
 	fmt.Println(out)
 
 	go func() {
+		var message ethernet.Frame
 		for {
-			reply := make([]byte, 2000)
-			_, err = conn.Read(reply)
+			message.Resize(2000)
+			n, err := conn.Read(message)
 			if err != nil {
 				log.Println("read from connection failed:", err.Error())
 			}
-			fmt.Println("incoming message:", string(reply))
-
-			_, err = ifce.Write(reply)
+			message = message[:n]
+			cmd.WritePacket(message)
+			_, err = ifce.Write(message)
 			if err != nil {
 				log.Println("write to interface failed:", err.Error())
 			}
 		}
 	}()
 
-	packet := make([]byte, 2000)
+	var packet ethernet.Frame
 	for {
+		packet.Resize(2000)
 		fmt.Println("loop started")
-		_, err := ifce.Read(packet)
+		n, err := ifce.Read(packet)
 		if err != nil {
 			log.Println("ifce read error:", err)
 		}
+		packet = packet[:n]
+		cmd.WritePacket(packet)
 		log.Printf("Packet Received: % x\n", string(packet))
 		_, err = conn.Write(packet)
 		if err != nil {
