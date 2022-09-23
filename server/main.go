@@ -18,6 +18,9 @@ func main() {
 	}
 
 	l, err := net.ListenTCP("tcp", tcpAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
 	for {
 		conn, err := l.Accept()
 		if err != nil {

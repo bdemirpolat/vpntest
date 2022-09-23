@@ -43,6 +43,8 @@ func main() {
 		log.Fatal("Dial failed:", err.Error())
 	}
 
+	fmt.Println("dial ok")
+
 	go func() {
 		for {
 			reply := make([]byte, 2000)
@@ -60,6 +62,7 @@ func main() {
 
 	packet := make([]byte, 2000)
 	for {
+		fmt.Println("loop started")
 		n, err := ifce.Read(packet)
 		if err != nil {
 			log.Fatal(err)
