@@ -5,6 +5,7 @@ import (
 	"github.com/songgao/water"
 	"log"
 	"net"
+	"strings"
 	"vpntest/cmd"
 )
 
@@ -33,15 +34,17 @@ func main() {
 
 		fmt.Println("incoming connection remote addr:", conn.RemoteAddr())
 
-		out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", conn.RemoteAddr(), ifce.Name()))
+		addr := strings.Split(conn.RemoteAddr().String(), ":")
+
+		out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", addr[0], ifce.Name()))
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("ip addr add error:", out, err)
 		}
 		fmt.Println(out)
 
 		out, err = cmd.RunCommand(fmt.Sprintf("sudo ip link set dev %s up", ifce.Name()))
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("ip link set error:", out, err)
 		}
 		fmt.Println(out)
 
