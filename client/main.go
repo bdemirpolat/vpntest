@@ -33,7 +33,7 @@ func main() {
 
 	fmt.Println("dial ok")
 
-	out, err = cmd.RunCommand(fmt.Sprintf("route add -host 89.252.131.89 -interface %s", ifce.Name()))
+	out, err = cmd.RunCommand(fmt.Sprintf("route add -host 178.18.206.125 -interface %s", ifce.Name()))
 	if err != nil {
 		log.Println(err)
 	}
@@ -60,8 +60,12 @@ func main() {
 		fmt.Println("loop started")
 		_, err := ifce.Read(packet)
 		if err != nil {
-			log.Println(err)
+			log.Println("ifce read error:", err)
 		}
 		log.Printf("Packet Received: % x\n", string(packet))
+		_, err = conn.Write(packet)
+		if err != nil {
+			log.Println("conn write error:", err)
+		}
 	}
 }

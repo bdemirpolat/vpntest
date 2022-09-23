@@ -50,12 +50,14 @@ func main() {
 				message := make([]byte, 2000)
 				_, err := conn.Read(message)
 				if err != nil {
-					log.Println(err)
+					log.Println("conn read error:", err)
 				}
 				fmt.Println("incoming message:", string(message))
-				_, err = ifce.Write(message)
-				if err != nil {
-					log.Println(err)
+				if ifce != nil {
+					_, err = ifce.Write(message)
+					if err != nil {
+						log.Println("ifce write err:", err)
+					}
 				}
 			}
 		}(conn)
@@ -64,12 +66,12 @@ func main() {
 		for {
 			n, err := ifce.Read(packet)
 			if err != nil {
-				log.Println(err)
+				log.Println("ifce read error:", err)
 			}
 			log.Printf("Packet Received: % x\n", packet[:n])
 			_, err = conn.Write(packet)
 			if err != nil {
-				log.Println(err)
+				log.Println("conn write error:", err)
 			}
 		}
 	}
