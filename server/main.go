@@ -11,13 +11,7 @@ import (
 var ifce *water.Interface
 
 func main() {
-	serverAddr := "89.252.131.88:8990"
-	tcpAddr, err := net.ResolveTCPAddr("tcp", serverAddr)
-	if err != nil {
-		log.Fatal("ResolveTCPAddr failed:", err.Error())
-	}
-
-	l, err := net.ListenTCP("tcp", tcpAddr)
+	l, err := net.Listen("tcp", "89.252.131.88:8990")
 	if err != nil {
 		log.Fatal(err)
 	}
