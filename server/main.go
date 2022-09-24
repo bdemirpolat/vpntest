@@ -41,7 +41,7 @@ func main() {
 
 		fmt.Println("incoming connection remote addr:", conn.RemoteAddr())
 
-		out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", "192.168.1.60", "O_O"))
+		out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", "10.1.0.20", "O_O"))
 		if err != nil {
 			log.Println("ip addr add error:", out, err)
 		}
