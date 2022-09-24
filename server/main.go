@@ -27,7 +27,7 @@ func main() {
 
 	log.Printf("Interface Name: %s\n", ifce.Name())
 
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/32 dev %s", "10.1.0.10", ifce.Name()))
+	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", "10.1.0.10", ifce.Name()))
 	if err != nil {
 		log.Println("ip addr add error:", out, err)
 	}
@@ -92,4 +92,12 @@ func runTestServer() {
 		return
 	})
 	http.ListenAndServe("10.1.0.10:8080", nil)
+}
+
+func runTestServer2() {
+	http.HandleFunc("/hi", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
+		return
+	})
+	http.ListenAndServe("10.1.0.20:8080", nil)
 }

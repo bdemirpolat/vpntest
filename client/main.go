@@ -20,7 +20,7 @@ func main() {
 
 	log.Printf("Interface Name: %s\n", ifce.Name())
 
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ifconfig %s 10.1.0.10 10.1.0.10 up", ifce.Name()))
+	out, err := cmd.RunCommand(fmt.Sprintf("sudo ifconfig %s 10.1.0.10 10.1.0.20 up", ifce.Name()))
 	if err != nil {
 		log.Println(err)
 	}
@@ -33,7 +33,7 @@ func main() {
 
 	fmt.Println("dial ok")
 
-	out, err = cmd.RunCommand(fmt.Sprintf("route add -host 10.1.0.10 -interface %s", ifce.Name()))
+	out, err = cmd.RunCommand(fmt.Sprintf("route add -host 10.1.0.20 -interface %s", ifce.Name()))
 	if err != nil {
 		log.Println(err)
 	}
