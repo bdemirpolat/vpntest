@@ -33,7 +33,7 @@ func main() {
 
 	fmt.Println("dial ok")
 
-	out, err = cmd.RunCommand(fmt.Sprintf("route add -host 178.18.206.125 -interface %s", ifce.Name()))
+	out, err = cmd.RunCommand(fmt.Sprintf("route add -host 10.1.0.10 -interface %s", ifce.Name()))
 	if err != nil {
 		log.Println(err)
 	}

@@ -23,9 +23,8 @@ func main() {
 		}
 
 		config := water.Config{
-			DeviceType: water.TAP,
+			DeviceType: water.TUN,
 		}
-		config.Name = "O_O"
 
 		ifce, err := water.New(config)
 		if err != nil {
@@ -40,7 +39,7 @@ func main() {
 
 		fmt.Println("incoming connection remote addr:", conn.RemoteAddr())
 
-		out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", "10.1.0.10", "O_O"))
+		out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", "10.1.0.10", ifce.Name()))
 		if err != nil {
 			log.Println("ip addr add error:", out, err)
 		}
