@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"bytes"
-	"github.com/songgao/packets/ethernet"
-	"log"
+	"fmt"
+	"golang.org/x/net/ipv4"
 	"os/exec"
 )
 
@@ -21,9 +21,12 @@ func RunCommand(command string) (string, error) {
 
 }
 
-func WritePacket(frame ethernet.Frame) {
-	log.Printf("Dst: %s\n", frame.Destination())
-	log.Printf("Src: %s\n", frame.Source())
-	log.Printf("Ethertype: % x\n", frame.Ethertype())
-	log.Printf("Payload: % x\n", frame.Payload())
+func WritePacket(frame []byte) {
+	header, err := ipv4.ParseHeader(frame)
+	if err != nil {
+		fmt.Println("write packet err:", err)
+	} else {
+		fmt.Println("SRC:", header.Src)
+		fmt.Println("DST:", header.Dst)
+	}
 }

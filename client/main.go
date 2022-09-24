@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/songgao/packets/ethernet"
 	"github.com/songgao/water"
 	"log"
 	"net"
@@ -41,9 +40,8 @@ func main() {
 	fmt.Println(out)
 
 	go func() {
-		var message ethernet.Frame
+		message := make([]byte, 2000)
 		for {
-			message.Resize(2000)
 			n, err := conn.Read(message)
 			if err != nil {
 				log.Println("read from connection failed:", err.Error())
@@ -57,9 +55,8 @@ func main() {
 		}
 	}()
 
-	var packet ethernet.Frame
+	packet := make([]byte, 2000)
 	for {
-		packet.Resize(2000)
 		fmt.Println("loop started")
 		n, err := ifce.Read(packet)
 		if err != nil {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/songgao/packets/ethernet"
 	"github.com/songgao/water"
 	"log"
 	"net"
@@ -41,7 +40,7 @@ func main() {
 
 		fmt.Println("incoming connection remote addr:", conn.RemoteAddr())
 
-		out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", "10.1.0.20", "O_O"))
+		out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", "10.1.0.10", "O_O"))
 		if err != nil {
 			log.Println("ip addr add error:", out, err)
 		}
@@ -54,9 +53,8 @@ func main() {
 		fmt.Println(out)
 
 		go func(tcpConn net.Conn) {
-			var message ethernet.Frame
+			message := make([]byte, 2000)
 			for {
-				message.Resize(2000)
 				n, err := conn.Read(message)
 				if err != nil {
 					log.Println("conn read error:", err)
@@ -71,9 +69,8 @@ func main() {
 				}
 			}
 		}(conn)
-		var packet ethernet.Frame
+		packet := make([]byte, 2000)
 		for {
-			packet.Resize(2000)
 			n, err := ifce.Read(packet)
 			if err != nil {
 				log.Println("ifce read error:", err)
