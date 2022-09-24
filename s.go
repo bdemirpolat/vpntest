@@ -10,5 +10,5 @@ func main() {
 		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
 		return
 	})
-	http.ListenAndServe("89.252.131.88:8990", nil)
+	http.ListenAndServe("10.1.0.20:8990", nil)
 }
