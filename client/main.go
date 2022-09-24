@@ -20,7 +20,7 @@ func main() {
 
 	log.Printf("Interface Name: %s\n", ifce.Name())
 
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ifconfig %s 10.1.0.10 10.1.0.20 up", ifce.Name()))
+	out, err := cmd.RunCommand(fmt.Sprintf("sudo ifconfig %s 10.1.0.10 10.1.0.10 up", ifce.Name()))
 	if err != nil {
 		log.Println(err)
 	}
