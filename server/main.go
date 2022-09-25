@@ -122,5 +122,11 @@ func createTun(ip string) (*water.Interface, error) {
 		fmt.Println(out)
 		return nil, err
 	}
+
+	out, err = cmd.RunCommand(fmt.Sprintf("sudo ip link set dev %s up", iface.Name()))
+	if err != nil {
+		fmt.Println(out)
+		return nil, err
+	}
 	return iface, nil
 }
