@@ -100,9 +100,11 @@ func listenInterface(iface *water.Interface) {
 		packet = packet[:n]
 		cmd.WritePacket(packet)
 		log.Printf("Packet Received: % x\n", packet)
-		_, err = conn.Write(packet)
-		if err != nil {
-			log.Println("conn write error:", err)
+		if conn != nil {
+			_, err = conn.Write(packet)
+			if err != nil {
+				log.Println("conn write error:", err)
+			}
 		}
 	}
 }
