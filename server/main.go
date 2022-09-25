@@ -2,88 +2,33 @@ package main
 
 import (
 	"fmt"
-	"github.com/songgao/water"
 	"log"
-	"net"
 	"net/http"
-	"vpntest/cmd"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
-var ifce *water.Interface
-
 func main() {
-	config := water.Config{
-		DeviceType: water.TUN,
-	}
-
-	ifce, err := water.New(config)
+	iface, err := createTun("10.1.0.10")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("interface create err:", err)
+		return
 	}
-
+	listener, err := createListener()
 	if err != nil {
-		log.Println(err)
+		fmt.Println("listener create err:", err)
+		return
 	}
-
-	log.Printf("Interface Name: %s\n", ifce.Name())
-
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", "10.1.0.10", ifce.Name()))
-	if err != nil {
-		log.Println("ip addr add error:", out, err)
-	}
-	fmt.Println(out)
-
-	out, err = cmd.RunCommand(fmt.Sprintf("sudo ip link set dev %s up", ifce.Name()))
-	if err != nil {
-		log.Println("ip link set error:", out, err)
-	}
-	fmt.Println(out)
-
 	go runTestServer()
+	go runTestServer2()
+	go listenTCP(listener, iface)
+	go listenInterface(iface)
 
-	l, err := net.Listen("tcp", "89.252.131.88:8990")
-	if err != nil {
-		log.Println(err)
-	}
-	for {
-		fmt.Println("listening")
-		conn, err := l.Accept()
-		if err != nil {
-			log.Println(err)
-		}
-
-		go func(tcpConn net.Conn) {
-			message := make([]byte, 2000)
-			for {
-				n, err := conn.Read(message)
-				if err != nil {
-					log.Println("conn read error:", err)
-				}
-				message = message[:n]
-				cmd.WritePacket(message)
-				if ifce != nil {
-					_, err = ifce.Write(message)
-					if err != nil {
-						log.Println("ifce write err:", err)
-					}
-				}
-			}
-		}(conn)
-		packet := make([]byte, 2000)
-		for {
-			n, err := ifce.Read(packet)
-			if err != nil {
-				log.Println("ifce read error:", err)
-			}
-			packet = packet[:n]
-			cmd.WritePacket(packet)
-			log.Printf("Packet Received: % x\n", packet)
-			_, err = conn.Write(packet)
-			if err != nil {
-				log.Println("conn write error:", err)
-			}
-		}
-	}
+	termSignal := make(chan os.Signal, 1)
+	signal.Notify(termSignal, os.Interrupt, syscall.SIGTERM)
+	<-termSignal
+	fmt.Println("closing")
 }
 
 func runTestServer() {
@@ -91,7 +36,10 @@ func runTestServer() {
 		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
 		return
 	})
-	http.ListenAndServe("10.1.0.10:8080", nil)
+	err := http.ListenAndServe("10.1.0.10:8080", nil)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func runTestServer2() {
@@ -99,5 +47,8 @@ func runTestServer2() {
 		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
 		return
 	})
-	http.ListenAndServe("10.1.0.20:8080", nil)
+	err := http.ListenAndServe("10.1.0.20:8080", nil)
+	if err != nil {
+		log.Println(err)
+	}
 }
