@@ -46,7 +46,7 @@ func runTestServer() {
 }
 
 func runTestServer2() {
-	http.HandleFunc("/hi", func(writer http.ResponseWriter, request *http.Request) {
+	http.HandleFunc("/hi2", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
 		return
 	})
