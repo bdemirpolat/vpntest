@@ -85,6 +85,8 @@ func handle(conn net.Conn, iface *water.Interface) {
 		_, err = iface.Write(message)
 		if err != nil {
 			log.Println("ifce write err:", err)
+		} else {
+			fmt.Println("iface write done")
 		}
 	}
 }

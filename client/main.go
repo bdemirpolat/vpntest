@@ -61,6 +61,8 @@ func listenTcpConn(iface *water.Interface, conn net.Conn) {
 		_, err = iface.Write(message)
 		if err != nil {
 			log.Println("write to interface failed:", err.Error())
+		} else {
+			fmt.Println("iface write done")
 		}
 	}
 }
@@ -105,7 +107,7 @@ func createTun() (*water.Interface, error) {
 }
 
 func addRoute(iface *water.Interface) error {
-	out, err := cmd.RunCommand(fmt.Sprintf("route add -host 10.1.0.10 -interface %s", iface.Name()))
+	out, err := cmd.RunCommand(fmt.Sprintf("route add -host 178.18.206.125 -interface %s", iface.Name()))
 	if err != nil {
 		fmt.Println(out)
 		return err
