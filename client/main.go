@@ -26,16 +26,17 @@ func main() {
 		return
 	}
 
-	err = addRoute(iface)
+	/*err = addRoute(iface)
 	if err != nil {
 		fmt.Println("add route error:", err)
-	}
+	}*/
 
 	go listenTcpConn(iface, conn)
 	go listenInterface(iface, conn)
 
 	termSignal := make(chan os.Signal, 1)
 	signal.Notify(termSignal, os.Interrupt, syscall.SIGTERM)
+	<-termSignal
 	fmt.Println("closing")
 }
 
@@ -92,7 +93,7 @@ func createTun() (*water.Interface, error) {
 
 	log.Printf("Interface Name: %s\n", iface.Name())
 
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ifconfig %s 10.1.0.10 10.1.0.10 up", iface.Name()))
+	out, err := cmd.RunCommand(fmt.Sprintf("sudo ifconfig %s 10.1.0.10 10.1.0.20 up", iface.Name()))
 	if err != nil {
 		fmt.Println(out)
 		return nil, err
