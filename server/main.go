@@ -42,7 +42,7 @@ func runTestServer() {
 	if err != nil {
 		log.Println(err)
 	} else {
-		fmt.Println("server listening on:", "10.1.0.20:8080")
+		fmt.Println("server listening on:", "10.1.0.10:8080")
 	}
 }
 
