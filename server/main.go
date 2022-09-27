@@ -111,7 +111,7 @@ func createTun(ip string) (*water.Interface, error) {
 		return nil, err
 	}
 	log.Printf("Interface Name: %s\n", iface.Name())
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", ip, iface.Name()))
+	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/32 dev %s", ip, iface.Name()))
 	if err != nil {
 		fmt.Println(out)
 		return nil, err
