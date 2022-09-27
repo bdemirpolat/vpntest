@@ -26,10 +26,10 @@ func main() {
 		return
 	}
 
-	/*err = addRoute(iface)
+	err = addRoute(iface)
 	if err != nil {
 		fmt.Println("add route error:", err)
-	}*/
+	}
 
 	go listenTcpConn(iface, conn)
 	go listenInterface(iface, conn)

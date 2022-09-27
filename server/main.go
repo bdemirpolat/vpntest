@@ -24,7 +24,6 @@ func main() {
 		return
 	}
 	go runTestServer()
-	go runTestServer2()
 	go listenTCP(listener, iface)
 	go listenInterface(iface)
 
@@ -40,17 +39,6 @@ func runTestServer() {
 		return
 	})
 	err := http.ListenAndServe("10.1.0.10:8080", nil)
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func runTestServer2() {
-	http.HandleFunc("/hi2", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
-		return
-	})
-	err := http.ListenAndServe("10.1.0.20:8080", nil)
 	if err != nil {
 		log.Println(err)
 	}
