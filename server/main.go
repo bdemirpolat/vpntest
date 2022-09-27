@@ -74,19 +74,21 @@ func listenTCP(listener net.Listener, iface *water.Interface) {
 	}
 }
 func handle(conn net.Conn, iface *water.Interface) {
-	message := make([]byte, 2000)
-	n, err := conn.Read(message)
-	if err != nil {
-		log.Println("conn read error:", err)
-	}
-	message = message[:n]
-	cmd.WritePacket(message)
-	if iface != nil {
-		_, err = iface.Write(message)
+	for {
+		message := make([]byte, 2000)
+		n, err := conn.Read(message)
 		if err != nil {
-			log.Println("ifce write err:", err)
-		} else {
-			fmt.Println("iface write done")
+			log.Println("conn read error:", err)
+		}
+		message = message[:n]
+		cmd.WritePacket(message)
+		if iface != nil {
+			_, err = iface.Write(message)
+			if err != nil {
+				log.Println("ifce write err:", err)
+			} else {
+				fmt.Println("iface write done")
+			}
 		}
 	}
 }
