@@ -107,7 +107,7 @@ func createTun() (*water.Interface, error) {
 }
 
 func addRoute(iface *water.Interface) error {
-	out, err := cmd.RunCommand(fmt.Sprintf("route add -host 178.18.206.125 -interface %s", iface.Name()))
+	out, err := cmd.RunCommand(fmt.Sprintf("route add -host 10.1.0.20 -interface %s", iface.Name()))
 	if err != nil {
 		fmt.Println(out)
 		return err

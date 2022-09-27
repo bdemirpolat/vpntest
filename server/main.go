@@ -38,7 +38,7 @@ func runTestServer() {
 		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
 		return
 	})
-	err := http.ListenAndServe("10.1.0.10:8080", nil)
+	err := http.ListenAndServe("10.1.0.20:8080", nil)
 	if err != nil {
 		log.Println(err)
 	}
