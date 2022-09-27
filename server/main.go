@@ -41,6 +41,8 @@ func runTestServer() {
 	err := http.ListenAndServe("10.1.0.20:8080", nil)
 	if err != nil {
 		log.Println(err)
+	} else {
+		fmt.Println("server listening on:", "10.1.0.20:8080")
 	}
 }
 
@@ -111,7 +113,7 @@ func createTun(ip string) (*water.Interface, error) {
 		return nil, err
 	}
 	log.Printf("Interface Name: %s\n", iface.Name())
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/32 dev %s", ip, iface.Name()))
+	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", ip, iface.Name()))
 	if err != nil {
 		fmt.Println(out)
 		return nil, err
