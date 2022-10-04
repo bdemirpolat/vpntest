@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	iface, err := createTun("10.1.0.10")
+	iface, err := createTun("10.1.0.20")
 	if err != nil {
 		fmt.Println("interface create err:", err)
 		return
