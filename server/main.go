@@ -23,7 +23,7 @@ func main() {
 		fmt.Println("listener create err:", err)
 		return
 	}
-	go runTestServer()
+	go runTestServer(iface.Name())
 	go listenTCP(listener, iface)
 	go listenInterface(iface)
 
@@ -33,16 +33,19 @@ func main() {
 	fmt.Println("closing")
 }
 
-func runTestServer() {
+func runTestServer(iface string) {
+	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add 192.168.35.35/24 dev %s", iface))
+	if err != nil {
+		fmt.Println(out)
+		return
+	}
 	http.HandleFunc("/hi", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
 		return
 	})
-	err := http.ListenAndServe("10.1.0.10:8080", nil)
+	err = http.ListenAndServe("192.168.35.35:8080", nil)
 	if err != nil {
 		log.Println(err)
-	} else {
-		fmt.Println("server listening on:", "10.1.0.10:8080")
 	}
 }
 
