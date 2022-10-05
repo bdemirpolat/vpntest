@@ -75,7 +75,9 @@ func handle(conn net.Conn, iface *water.Interface) {
 			log.Println("conn read error:", err)
 		}
 		message = message[:n]
+		fmt.Println("START - incoming packet from TUNNEL")
 		cmd.WritePacket(message)
+		fmt.Println("DONE - incoming packet from TUNNEL")
 		if iface != nil {
 			_, err = iface.Write(message)
 			if err != nil {
@@ -96,8 +98,9 @@ func listenInterface(iface *water.Interface) {
 			log.Println("ifce read error:", err)
 		}
 		packet = packet[:n]
+		fmt.Println("START - incoming packet from INTERFACE")
 		cmd.WritePacket(packet)
-		log.Printf("Packet Received: % x\n", packet)
+		fmt.Println("DONE - incoming packet from INTERFACE")
 		if conn != nil {
 			_, err = conn.Write(packet)
 			if err != nil {
