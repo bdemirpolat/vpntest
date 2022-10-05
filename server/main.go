@@ -13,7 +13,8 @@ import (
 )
 
 func main() {
-	iface, err := createTun("10.1.0.20")
+	ip := "192.168.35.35"
+	iface, err := createTun(ip)
 	if err != nil {
 		fmt.Println("interface create err:", err)
 		return
@@ -23,7 +24,7 @@ func main() {
 		fmt.Println("listener create err:", err)
 		return
 	}
-	go runTestServer(iface.Name())
+	go runTestServer(iface.Name(), ip)
 	go listenTCP(listener, iface)
 	go listenInterface(iface)
 
@@ -33,8 +34,8 @@ func main() {
 	fmt.Println("closing")
 }
 
-func runTestServer(iface string) {
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add 192.168.35.35/24 dev %s", iface))
+func runTestServer(iface, ip string) {
+	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", ip, iface))
 	if err != nil {
 		fmt.Println(out)
 		return
@@ -43,7 +44,7 @@ func runTestServer(iface string) {
 		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
 		return
 	})
-	err = http.ListenAndServe("192.168.35.35:8080", nil)
+	err = http.ListenAndServe(fmt.Sprintf("%s:8080", ip), nil)
 	if err != nil {
 		log.Println(err)
 	}

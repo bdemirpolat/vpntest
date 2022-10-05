@@ -28,5 +28,7 @@ func WritePacket(frame []byte) {
 	} else {
 		fmt.Println("SRC:", header.Src)
 		fmt.Println("DST:", header.Dst)
+		fmt.Println("ID:", header.ID)
+		fmt.Println("CHECKSUM:", header.Checksum)
 	}
 }
