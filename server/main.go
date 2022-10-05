@@ -82,7 +82,7 @@ func listenUDP(listener *net.UDPConn, iface *water.Interface) {
 
 func listenInterface(iface *water.Interface) {
 	fmt.Println("interface listening")
-	packet := make([]byte, 2000)
+	packet := make([]byte, 65535)
 	for {
 		n, err := iface.Read(packet)
 		if err != nil {

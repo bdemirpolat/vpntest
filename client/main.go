@@ -39,7 +39,7 @@ func createListener() (*net.UDPConn, error) {
 func listenUDP(listener *net.UDPConn, iface *water.Interface) {
 	for {
 		fmt.Println("udp connection listening")
-		message := make([]byte, 1500)
+		message := make([]byte, 65535)
 		for {
 			n, err := listener.Read(message)
 			if err != nil {
