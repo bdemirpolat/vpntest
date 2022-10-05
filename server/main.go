@@ -25,7 +25,7 @@ func main() {
 		return
 	}
 	go runTestServer(iface.Name(), "192.168.35.34")
-	go listenTCP(listener, iface)
+	go listenUDP(listener, iface)
 	go listenInterface(iface)
 
 	termSignal := make(chan os.Signal, 1)
@@ -50,42 +50,33 @@ func runTestServer(iface, ip string) {
 	}
 }
 
-var conn net.Conn
-
-func createListener() (net.Listener, error) {
-	return net.Listen("tcp", "89.252.131.88:8990")
+func createListener() (*net.UDPConn, error) {
+	return net.ListenUDP("udp", &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
 }
 
-func listenTCP(listener net.Listener, iface *water.Interface) {
+func listenUDP(listener *net.UDPConn, iface *water.Interface) {
 	for {
-		fmt.Println("tcp connection listening")
-		var err error
-		conn, err = listener.Accept()
-		if err != nil {
-			log.Println(err)
-		}
-		go handle(conn, iface)
-	}
-}
-func handle(conn net.Conn, iface *water.Interface) {
-	for {
-		message := make([]byte, 2000)
-		n, err := conn.Read(message)
-		if err != nil {
-			log.Println("conn read error:", err)
-		}
-		message = message[:n]
-		fmt.Println("START - incoming packet from TUNNEL")
-		cmd.WritePacket(message)
-		fmt.Println("DONE - incoming packet from TUNNEL")
-		if iface != nil {
-			_, err = iface.Write(message)
+		fmt.Println("udp connection listening")
+		message := make([]byte, 1500)
+		for {
+			n, err := listener.Read(message)
 			if err != nil {
-				log.Println("ifce write err:", err)
-			} else {
-				fmt.Println("iface write done")
+				log.Println("conn read error:", err)
+			}
+			message = message[:n]
+			fmt.Println("START - incoming packet from TUNNEL")
+			cmd.WritePacket(message)
+			fmt.Println("DONE - incoming packet from TUNNEL")
+			if iface != nil {
+				_, err = iface.Write(message)
+				if err != nil {
+					log.Println("ifce write err:", err)
+				} else {
+					fmt.Println("iface write done")
+				}
 			}
 		}
+
 	}
 }
 
@@ -101,12 +92,14 @@ func listenInterface(iface *water.Interface) {
 		fmt.Println("START - incoming packet from INTERFACE")
 		cmd.WritePacket(packet)
 		fmt.Println("DONE - incoming packet from INTERFACE")
-		if conn != nil {
+		conn, err := net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
+		if err == nil {
 			_, err = conn.Write(packet)
 			if err != nil {
 				log.Println("conn write error:", err)
 			}
 		}
+		conn.Close()
 	}
 }
 

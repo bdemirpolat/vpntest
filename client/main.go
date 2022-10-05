@@ -11,8 +11,6 @@ import (
 	"vpntest/cmd"
 )
 
-var conn net.Conn
-
 func main() {
 	iface, err := createTun("10.10.10.10")
 	if err != nil {
@@ -20,13 +18,12 @@ func main() {
 		return
 	}
 
-	conn, err = connectTcpServer()
+	conn, err := createListener()
 	if err != nil {
-		fmt.Println("can not connected to tcp server:", err)
-		return
+		fmt.Println("udp conn create error:", err)
 	}
 
-	go listenTcpConn(iface, conn)
+	go listenUDP(conn, iface)
 	go listenInterface(iface, conn)
 
 	termSignal := make(chan os.Signal, 1)
@@ -35,32 +32,33 @@ func main() {
 	fmt.Println("closing")
 }
 
-func connectTcpServer() (net.Conn, error) {
-	conn, err := net.Dial("tcp", "89.252.131.88:8990")
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("dial ok")
-	return conn, nil
+func createListener() (*net.UDPConn, error) {
+	return net.ListenUDP("udp", &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
 }
 
-func listenTcpConn(iface *water.Interface, conn net.Conn) {
-	message := make([]byte, 2000)
+func listenUDP(listener *net.UDPConn, iface *water.Interface) {
 	for {
-		n, err := conn.Read(message)
-		if err != nil {
-			log.Println("read from connection failed:", err.Error())
+		fmt.Println("udp connection listening")
+		message := make([]byte, 1500)
+		for {
+			n, err := listener.Read(message)
+			if err != nil {
+				log.Println("conn read error:", err)
+			}
+			message = message[:n]
+			fmt.Println("START - incoming packet from TUNNEL")
+			cmd.WritePacket(message)
+			fmt.Println("DONE - incoming packet from TUNNEL")
+			if iface != nil {
+				_, err = iface.Write(message)
+				if err != nil {
+					log.Println("ifce write err:", err)
+				} else {
+					fmt.Println("iface write done")
+				}
+			}
 		}
-		message = message[:n]
-		fmt.Println("START - incoming packet from TUNNEL")
-		cmd.WritePacket(message)
-		fmt.Println("DONE - incoming packet from TUNNEL")
-		_, err = iface.Write(message)
-		if err != nil {
-			log.Println("write to interface failed:", err.Error())
-		} else {
-			fmt.Println("iface write done")
-		}
+
 	}
 }
 
