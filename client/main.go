@@ -33,7 +33,7 @@ func main() {
 }
 
 func createListener() (*net.UDPConn, error) {
-	return net.ListenUDP("udp", &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
+	return net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
 }
 
 func listenUDP(listener *net.UDPConn, iface *water.Interface) {
