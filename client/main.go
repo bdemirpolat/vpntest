@@ -14,7 +14,7 @@ import (
 var conn net.Conn
 
 func main() {
-	iface, err := createTun()
+	iface, err := createTun("192.168.35.35")
 	if err != nil {
 		fmt.Println("interface can not created:", err)
 		return
@@ -25,11 +25,6 @@ func main() {
 		fmt.Println("can not connected to tcp server:", err)
 		return
 	}
-
-	/*	err = addRoute(iface)
-		if err != nil {
-			fmt.Println("add route error:", err)
-		}*/
 
 	go listenTcpConn(iface, conn)
 	go listenInterface(iface, conn)
@@ -90,31 +85,26 @@ func listenInterface(iface *water.Interface, conn net.Conn) {
 	}
 }
 
-func createTun() (*water.Interface, error) {
-	iface, err := water.New(water.Config{
+func createTun(ip string) (*water.Interface, error) {
+	config := water.Config{
 		DeviceType: water.TUN,
-	})
+	}
+
+	iface, err := water.New(config)
 	if err != nil {
 		return nil, err
 	}
-
 	log.Printf("Interface Name: %s\n", iface.Name())
-
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ifconfig %s 192.168.35.1 192.168.35.35 up", iface.Name()))
+	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", ip, iface.Name()))
 	if err != nil {
 		fmt.Println(out)
 		return nil, err
 	}
 
-	return iface, nil
-}
-
-func addRoute(iface *water.Interface) error {
-	out, err := cmd.RunCommand(fmt.Sprintf("route add -host 192.168.35.35 -interface %s", iface.Name()))
-	//out, err := cmd.RunCommand(fmt.Sprintf("sudo ifconfig %s -alias 192.168.35.35", iface.Name()))
+	out, err = cmd.RunCommand(fmt.Sprintf("sudo ip link set dev %s up", iface.Name()))
 	if err != nil {
 		fmt.Println(out)
-		return err
+		return nil, err
 	}
-	return nil
+	return iface, nil
 }
