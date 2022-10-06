@@ -11,20 +11,21 @@ import (
 	"vpntest/cmd"
 )
 
+var conn *net.UDPConn
+
 func main() {
 	iface, err := createTun("192.168.9.9")
 	if err != nil {
 		fmt.Println("interface can not created:", err)
 		return
 	}
-
-	conn, err := createListener()
+	conn, err = createConn()
 	if err != nil {
 		fmt.Println("udp conn create error:", err)
 	}
 
-	go listenUDP(conn, iface)
-	go listenInterface(iface, conn)
+	go listenUDP(iface)
+	go listenInterface(iface)
 
 	termSignal := make(chan os.Signal, 1)
 	signal.Notify(termSignal, os.Interrupt, syscall.SIGTERM)
@@ -32,16 +33,16 @@ func main() {
 	fmt.Println("closing")
 }
 
-func createListener() (*net.UDPConn, error) {
-	return net.ListenUDP("udp", &net.UDPAddr{IP: []byte{0, 0, 0, 0}, Port: 8990, Zone: ""})
+func createConn() (*net.UDPConn, error) {
+	return net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
 }
 
-func listenUDP(listener *net.UDPConn, iface *water.Interface) {
+func listenUDP(iface *water.Interface) {
 	for {
 		fmt.Println("udp connection listening")
 		message := make([]byte, 65535)
 		for {
-			n, err := listener.Read(message)
+			n, err := conn.Read(message)
 			if err != nil {
 				log.Println("conn read error:", err)
 			}
@@ -61,7 +62,7 @@ func listenUDP(listener *net.UDPConn, iface *water.Interface) {
 	}
 }
 
-func listenInterface(iface *water.Interface, conn net.Conn) {
+func listenInterface(iface *water.Interface) {
 	fmt.Println("interface listening")
 	packet := make([]byte, 65535)
 	for {
@@ -69,7 +70,7 @@ func listenInterface(iface *water.Interface, conn net.Conn) {
 		if err != nil {
 			log.Println("ifce read error:", err)
 		}
-		conn, err := net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
+
 		if err == nil {
 			_, err = conn.Write(packet[:n])
 			if err != nil {
@@ -79,7 +80,7 @@ func listenInterface(iface *water.Interface, conn net.Conn) {
 		fmt.Println("START - incoming packet from INTERFACE")
 		cmd.WritePacket(packet[:n])
 		fmt.Println("DONE - incoming packet from INTERFACE")
-		conn.Close()
+
 	}
 }
 

@@ -12,6 +12,8 @@ import (
 	"vpntest/cmd"
 )
 
+var listener *net.UDPConn
+
 func main() {
 	ip := "192.168.9.11"
 	iface, err := createTun(ip)
@@ -19,13 +21,13 @@ func main() {
 		fmt.Println("interface create err:", err)
 		return
 	}
-	listener, err := createListener()
+	listener, err = createListener()
 	if err != nil {
 		fmt.Println("listener create err:", err)
 		return
 	}
 	go runTestServer(iface.Name(), "192.168.9.11")
-	go listenUDP(listener, iface)
+	go listenUDP(iface)
 	go listenInterface(iface)
 
 	termSignal := make(chan os.Signal, 1)
@@ -54,7 +56,7 @@ func createListener() (*net.UDPConn, error) {
 	return net.ListenUDP("udp", &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
 }
 
-func listenUDP(listener *net.UDPConn, iface *water.Interface) {
+func listenUDP(iface *water.Interface) {
 	for {
 		fmt.Println("udp connection listening")
 		message := make([]byte, 65535)
@@ -87,17 +89,15 @@ func listenInterface(iface *water.Interface) {
 		if err != nil {
 			log.Println("ifce read error:", err)
 		}
-		conn, err := net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
-		if err == nil {
-			_, err = conn.Write(packet[:n])
-			if err != nil {
-				log.Println("conn write error:", err)
-			}
+
+		_, err = listener.Write(packet[:n])
+		if err != nil {
+			log.Println("conn write error:", err)
 		}
+
 		fmt.Println("START - incoming packet from INTERFACE")
 		cmd.WritePacket(packet[:n])
 		fmt.Println("DONE - incoming packet from INTERFACE")
-		conn.Close()
 	}
 }
 
