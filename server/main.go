@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	ip := "192.168.53.1"
+	ip := "192.168.9.11"
 	iface, err := createTun(ip)
 	if err != nil {
 		fmt.Println("interface create err:", err)
@@ -24,7 +24,7 @@ func main() {
 		fmt.Println("listener create err:", err)
 		return
 	}
-	go runTestServer(iface.Name(), "192.168.53.2")
+	go runTestServer(iface.Name(), "192.168.9.11")
 	go listenUDP(listener, iface)
 	go listenInterface(iface)
 

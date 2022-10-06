@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	iface, err := createTun("192.168.53.1")
+	iface, err := createTun("192.168.9.9")
 	if err != nil {
 		fmt.Println("interface can not created:", err)
 		return
