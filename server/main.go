@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	ip := "192.168.35.35"
+	ip := "192.168.53.1"
 	iface, err := createTun(ip)
 	if err != nil {
 		fmt.Println("interface create err:", err)
@@ -24,7 +24,7 @@ func main() {
 		fmt.Println("listener create err:", err)
 		return
 	}
-	go runTestServer(iface.Name(), "192.168.35.34")
+	go runTestServer(iface.Name(), "192.168.60.5")
 	go listenUDP(listener, iface)
 	go listenInterface(iface)
 
@@ -35,16 +35,11 @@ func main() {
 }
 
 func runTestServer(iface, ip string) {
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/32 dev %s", ip, iface))
-	if err != nil {
-		fmt.Println(out)
-		return
-	}
 	http.HandleFunc("/hi", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
 		return
 	})
-	err = http.ListenAndServe(fmt.Sprintf("%s:8080", ip), nil)
+	err := http.ListenAndServe(fmt.Sprintf("%s:8080", ip), nil)
 	if err != nil {
 		log.Println(err)
 	}
