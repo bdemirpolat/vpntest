@@ -11,7 +11,7 @@ import (
 	"vpntest/cmd"
 )
 
-var conn *net.UDPConn
+var conn net.Conn
 
 func main() {
 	iface, err := createTun("192.168.9.9")
@@ -21,10 +21,10 @@ func main() {
 	}
 	conn, err = createConn()
 	if err != nil {
-		fmt.Println("udp conn create error:", err)
+		fmt.Println("tcp conn create error:", err)
 	}
 
-	go listenUDP(iface)
+	go listen(iface)
 	go listenInterface(iface)
 
 	termSignal := make(chan os.Signal, 1)
@@ -33,13 +33,13 @@ func main() {
 	fmt.Println("closing")
 }
 
-func createConn() (*net.UDPConn, error) {
-	return net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
+func createConn() (net.Conn, error) {
+	return net.Dial("tcp", "89.252.131.88:8990")
 }
 
-func listenUDP(iface *water.Interface) {
+func listen(iface *water.Interface) {
 	for {
-		fmt.Println("udp connection listening")
+		fmt.Println("tcp connection listening")
 		message := make([]byte, 65535)
 		for {
 			n, err := conn.Read(message)
