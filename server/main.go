@@ -38,16 +38,11 @@ func main() {
 }
 
 func runTestServer(iface, ip string) {
-	out, err := cmd.RunCommand(fmt.Sprintf("sudo ip addr add %s/24 dev %s", ip, iface))
-	if err != nil {
-		fmt.Println(out)
-		return
-	}
 	http.HandleFunc("/hi", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte(fmt.Sprintf("hi %s", request.RemoteAddr)))
 		return
 	})
-	err = http.ListenAndServe(fmt.Sprintf("%s:8080", ip), nil)
+	err := http.ListenAndServe(fmt.Sprintf("%s:8080", ip), nil)
 	if err != nil {
 		log.Println(err)
 	}
