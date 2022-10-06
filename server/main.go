@@ -52,24 +52,23 @@ func createListener() (*net.UDPConn, error) {
 func listenUDP(listener *net.UDPConn, iface *water.Interface) {
 	for {
 		fmt.Println("udp connection listening")
-		message := make([]byte, 1500)
+		message := make([]byte, 65535)
 		for {
 			n, err := listener.Read(message)
 			if err != nil {
 				log.Println("conn read error:", err)
 			}
-			message = message[:n]
-			fmt.Println("START - incoming packet from TUNNEL")
-			cmd.WritePacket(message)
-			fmt.Println("DONE - incoming packet from TUNNEL")
 			if iface != nil {
-				_, err = iface.Write(message)
+				_, err = iface.Write(message[:n])
 				if err != nil {
 					log.Println("ifce write err:", err)
 				} else {
 					fmt.Println("iface write done")
 				}
 			}
+			fmt.Println("START - incoming packet from TUNNEL")
+			cmd.WritePacket(message[:n])
+			fmt.Println("DONE - incoming packet from TUNNEL")
 		}
 
 	}
@@ -83,17 +82,16 @@ func listenInterface(iface *water.Interface) {
 		if err != nil {
 			log.Println("ifce read error:", err)
 		}
-		packet = packet[:n]
-		fmt.Println("START - incoming packet from INTERFACE")
-		cmd.WritePacket(packet)
-		fmt.Println("DONE - incoming packet from INTERFACE")
 		conn, err := net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
 		if err == nil {
-			_, err = conn.Write(packet)
+			_, err = conn.Write(packet[:n])
 			if err != nil {
 				log.Println("conn write error:", err)
 			}
 		}
+		fmt.Println("START - incoming packet from INTERFACE")
+		cmd.WritePacket(packet[:n])
+		fmt.Println("DONE - incoming packet from INTERFACE")
 		conn.Close()
 	}
 }

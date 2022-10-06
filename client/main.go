@@ -45,18 +45,17 @@ func listenUDP(listener *net.UDPConn, iface *water.Interface) {
 			if err != nil {
 				log.Println("conn read error:", err)
 			}
-			message = message[:n]
-			fmt.Println("START - incoming packet from TUNNEL")
-			cmd.WritePacket(message)
-			fmt.Println("DONE - incoming packet from TUNNEL")
 			if iface != nil {
-				_, err = iface.Write(message)
+				_, err = iface.Write(message[:n])
 				if err != nil {
 					log.Println("ifce write err:", err)
 				} else {
 					fmt.Println("iface write done")
 				}
 			}
+			fmt.Println("START - incoming packet from TUNNEL")
+			cmd.WritePacket(message[:n])
+			fmt.Println("DONE - incoming packet from TUNNEL")
 		}
 
 	}
@@ -64,22 +63,21 @@ func listenUDP(listener *net.UDPConn, iface *water.Interface) {
 
 func listenInterface(iface *water.Interface, conn net.Conn) {
 	fmt.Println("interface listening")
-	packet := make([]byte, 2000)
+	packet := make([]byte, 65535)
 	for {
 		n, err := iface.Read(packet)
 		if err != nil {
 			log.Println("ifce read error:", err)
 		}
-		packet = packet[:n]
-		fmt.Println("START - incoming packet from INTERFACE")
-		cmd.WritePacket(packet)
-		fmt.Println("DONE - incoming packet from INTERFACE")
 		if conn != nil {
-			_, err = conn.Write(packet)
+			_, err = conn.Write(packet[:n])
 			if err != nil {
 				log.Println("conn write error:", err)
 			}
 		}
+		fmt.Println("START - incoming packet from INTERFACE")
+		cmd.WritePacket(packet[:n])
+		fmt.Println("DONE - incoming packet from INTERFACE")
 	}
 }
 
