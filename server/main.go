@@ -24,7 +24,7 @@ func main() {
 		fmt.Println("listener create err:", err)
 		return
 	}
-	go runTestServer(iface.Name(), "192.168.60.5")
+	go runTestServer(iface.Name(), "192.168.53.1")
 	go listenUDP(listener, iface)
 	go listenInterface(iface)
 
