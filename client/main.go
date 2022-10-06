@@ -33,7 +33,7 @@ func main() {
 }
 
 func createListener() (*net.UDPConn, error) {
-	return net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
+	return net.ListenUDP("udp", &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
 }
 
 func listenUDP(listener *net.UDPConn, iface *water.Interface) {
@@ -69,7 +69,8 @@ func listenInterface(iface *water.Interface, conn net.Conn) {
 		if err != nil {
 			log.Println("ifce read error:", err)
 		}
-		if conn != nil {
+		conn, err := net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{89, 252, 131, 88}, Port: 8990, Zone: ""})
+		if err == nil {
 			_, err = conn.Write(packet[:n])
 			if err != nil {
 				log.Println("conn write error:", err)
@@ -78,6 +79,7 @@ func listenInterface(iface *water.Interface, conn net.Conn) {
 		fmt.Println("START - incoming packet from INTERFACE")
 		cmd.WritePacket(packet[:n])
 		fmt.Println("DONE - incoming packet from INTERFACE")
+		conn.Close()
 	}
 }
 
